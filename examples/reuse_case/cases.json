@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "id": "a-original",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"},
+        {"raw_row_id": "002", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "2", "category": "TYPE-A", "points": 5, "status": "cancelled"},
+        {"raw_row_id": "003", "project": "A", "workflow": "triage", "issue_id": "I101", "entry_id": "1", "category": "TYPE-B", "points": 7, "status": "open"},
+        {"raw_row_id": "004", "project": "A", "workflow": "triage", "issue_id": "I101", "entry_id": "2", "category": "TYPE-A", "points": 3, "status": "open"},
+        {"raw_row_id": "005", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"output": [{"project": "A", "workflow": "triage", "category": "TYPE-A", "points": 15}, {"project": "A", "workflow": "triage", "category": "TYPE-B", "points": 7}]}
+    },
+    {
+      "id": "a-refreshed",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "new-101", "project": "A", "workflow": "triage", "issue_id": "I101", "entry_id": "2", "category": "TYPE-A", "points": 3, "status": "open"},
+        {"raw_row_id": "new-102", "project": "A", "workflow": "triage", "issue_id": "I101", "entry_id": "1", "category": "TYPE-B", "points": 7, "status": "open"},
+        {"raw_row_id": "new-103", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"},
+        {"raw_row_id": "new-104", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "2", "category": "TYPE-A", "points": 5, "status": "cancelled"},
+        {"raw_row_id": "new-105", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"output": [{"project": "A", "workflow": "triage", "category": "TYPE-A", "points": 15}, {"project": "A", "workflow": "triage", "category": "TYPE-B", "points": 7}]}
+    },
+    {
+      "id": "b-original",
+      "contract": {"project": "B", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "include"},
+      "rows": [
+        {"raw_row_id": "001", "project": "B", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"},
+        {"raw_row_id": "002", "project": "B", "workflow": "triage", "issue_id": "I100", "entry_id": "2", "category": "TYPE-A", "points": 5, "status": "cancelled"},
+        {"raw_row_id": "003", "project": "B", "workflow": "triage", "issue_id": "I101", "entry_id": "1", "category": "TYPE-B", "points": 7, "status": "open"},
+        {"raw_row_id": "004", "project": "B", "workflow": "triage", "issue_id": "I101", "entry_id": "2", "category": "TYPE-A", "points": 3, "status": "open"},
+        {"raw_row_id": "005", "project": "B", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"output": [{"project": "B", "workflow": "triage", "category": "TYPE-A", "points": 20}, {"project": "B", "workflow": "triage", "category": "TYPE-B", "points": 7}]}
+    },
+    {
+      "id": "missing-project",
+      "contract": {"workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Missing contract field: project"}
+    },
+    {
+      "id": "missing-workflow",
+      "contract": {"project": "A", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Missing contract field: workflow"}
+    },
+    {
+      "id": "missing-business-identity",
+      "contract": {"project": "A", "workflow": "triage", "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Missing contract field: record_identity"}
+    },
+    {
+      "id": "missing-cancelled-lines",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"]},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Missing contract field: cancelled_issues"}
+    },
+    {
+      "id": "missing-line-identity",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Missing row field: entry_id"}
+    },
+    {
+      "id": "conflicting-line",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"},
+        {"raw_row_id": "conflict", "project": "A", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 13, "status": "open"}
+      ],
+      "expected": {"error": "Conflicting record identity: A/triage/I100/1"}
+    },
+    {
+      "id": "project-scope-mismatch",
+      "contract": {"project": "A", "workflow": "triage", "record_identity": ["project", "workflow", "issue_id", "entry_id"], "cancelled_issues": "exclude"},
+      "rows": [
+        {"raw_row_id": "001", "project": "B", "workflow": "triage", "issue_id": "I100", "entry_id": "1", "category": "TYPE-A", "points": 12, "status": "open"}
+      ],
+      "expected": {"error": "Row outside contract scope: B/triage"}
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9
+        with:
+          version: "0.12.10"
+          python-version: "3.12"
+      - run: uv sync --locked --extra server
+      - run: make test
+      - run: make lint
+      - run: uv run --locked --extra server simple-pilot
+      - run: uv build
+      - run: uv run --locked --extra server python scripts/check-dist.py
+      - run: bash scripts/check-sdist.sh
+      - run: bash scripts/check-core.sh

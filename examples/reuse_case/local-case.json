@@ -1,0 +1,6 @@
+{
+  "id": "workload",
+  "code": "model.py",
+  "inputs": "cases.json",
+  "test": "check.py"
+}

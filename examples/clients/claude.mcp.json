@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "simple": {
+      "type": "http",
+      "url": "${SIMPLE_URL:-http://127.0.0.1:8000}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${SIMPLE_TOKEN}"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "arguments": {
+    "request_id": "handover-1",
+    "sources": [
+      "operating-spec"
+    ],
+    "handover": "Use finding r_example_finding and notes r_example_restricted."
+  },
+  "dependencies": [
+    {
+      "id": "r_example_finding",
+      "revision": 1,
+      "sources": [
+        "operating-spec"
+      ]
+    },
+    {
+      "id": "r_example_restricted",
+      "revision": 1,
+      "sources": [
+        "notes-private"
+      ]
+    }
+  ]
+}

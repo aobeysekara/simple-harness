@@ -1,0 +1,56 @@
+{
+  "project": "A",
+  "workflow": "triage",
+  "rows": [
+    {
+      "raw_row_id": "new-101",
+      "project": "A",
+      "workflow": "triage",
+      "issue_id": "I101",
+      "entry_id": "2",
+      "category": "TYPE-A",
+      "points": 3,
+      "status": "open"
+    },
+    {
+      "raw_row_id": "new-102",
+      "project": "A",
+      "workflow": "triage",
+      "issue_id": "I101",
+      "entry_id": "1",
+      "category": "TYPE-B",
+      "points": 7,
+      "status": "open"
+    },
+    {
+      "raw_row_id": "new-103",
+      "project": "A",
+      "workflow": "triage",
+      "issue_id": "I100",
+      "entry_id": "1",
+      "category": "TYPE-A",
+      "points": 12,
+      "status": "open"
+    },
+    {
+      "raw_row_id": "new-104",
+      "project": "A",
+      "workflow": "triage",
+      "issue_id": "I100",
+      "entry_id": "2",
+      "category": "TYPE-A",
+      "points": 5,
+      "status": "cancelled"
+    },
+    {
+      "raw_row_id": "new-105",
+      "project": "A",
+      "workflow": "triage",
+      "issue_id": "I100",
+      "entry_id": "1",
+      "category": "TYPE-A",
+      "points": 12,
+      "status": "open"
+    }
+  ]
+}

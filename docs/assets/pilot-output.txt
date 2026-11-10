@@ -1,0 +1,9 @@
+Service: http://127.0.0.1:65271
+PASS separate MCP client sessions
+PASS retried proposal saved once
+PASS proposal and question attributed
+PASS separate reviewer accepted proposal
+PASS handover recovered after reconnect
+PASS revoked client denied
+PASS demo client access restored
+PASS local collaboration pilot; service stopped

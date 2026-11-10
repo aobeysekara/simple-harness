@@ -1,0 +1,31 @@
+{
+  "arguments": {
+    "request_id": "end-wm-1",
+    "sources": [
+      "operating-spec"
+    ],
+    "derived_from": [
+      {
+        "update_id": "r_example_finding",
+        "revision": 3
+      }
+    ],
+    "handover": "Continue finding r_example_finding and implementation r_example_result."
+  },
+  "dependencies": [
+    {
+      "id": "r_example_finding",
+      "revision": 3,
+      "sources": [
+        "operating-spec"
+      ]
+    },
+    {
+      "id": "r_example_result",
+      "revision": 2,
+      "sources": [
+        "operating-spec"
+      ]
+    }
+  ]
+}

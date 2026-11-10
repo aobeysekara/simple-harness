@@ -1,0 +1,24 @@
+Usage: simple [OPTIONS] COMMAND [ARGS]...
+
+ Share selected work between local pilot sessions.
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --db                        <path>  [env var: SIMPLE_DB] [default: .simple/workspace.sqlite3]    │
+│ --install-completion                Install completion for the current shell.                    │
+│ --show-completion                   Show completion for the current shell, to copy it or         │
+│                                     customize the installation.                                  │
+│ --help                              Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ open      Open a session without history; retrieve task context separately.                      │
+│ join      Join a workspace task and return a session, snapshot and cursor.                       │
+│ read      Read authorised tasks and contributions from a workspace snapshot.                     │
+│ post      Share a contribution or amend an exact revision using a retry key.                     │
+│ context   Prepare complete permitted task context within a UTF-8 JSON byte budget.               │
+│ updates   Fetch allowed changes. Follow the returned cursor while has_more is true.              │
+│ end       End a session and optionally save a handover atomically.                               │
+│ review    Accept or reject another user's contribution with reviewer credentials.                │
+│ validate  Replay an operator-selected local case using validator credentials.                    │
+│ admin     Provision the pilot as the trusted database operator.                                  │
+│ demo      Create a synthetic workspace for the local pilot.                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
