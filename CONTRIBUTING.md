@@ -23,6 +23,8 @@ Keep the application core independent of storage and transport adapters. Preserv
 
 Open a pull request against `main`. Describe the problem, resulting behaviour, relevant commands and known limits. Keep unrelated changes separate. Passing CI does not replace review.
 
+Contributions require approval from `@aobeysekara`, passing quality checks and resolved review conversations. New commits dismiss earlier approvals. The repository owner retains direct push access.
+
 ## Reports and rights
 
 For bugs, include the commit, Python version, minimal reproducer, expected behaviour and actual result. Remove credentials, personal data, private URLs and database exports. Use [SECURITY.md](SECURITY.md) for vulnerabilities.
