@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a runnable example showing what happens when advice relies on an old input version.
+  Compare SIMple with an updated Markdown handover and an untouched copy. Explain the
+  results in plain English and describe a two-person trial that has yet to be run.
+
 ## 0.1.0a1
 
 Experimental alpha with a typed Python library, local CLI and optional authenticated HTTP/MCP service.

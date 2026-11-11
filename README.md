@@ -2,13 +2,30 @@
 
 Shared work for people and their agents.
 
-SIMple keeps findings, decisions and handovers in a durable workspace. Each contribution records who wrote it, the sources it uses and the exact revisions it depends on. Another session can pick up the work without copying a conversation.
+SIMple is a Python library for sharing findings, decisions and handovers across people and AI sessions. It keeps a record of what was agreed, why it was agreed and which sources it relies on, so the next person or agent can continue the work.
 
-Use it through Python, the command line or an optional Model Context Protocol (MCP) service. It works without a model provider. The core uses the Python standard library and SQLite.
+You choose what to share. Your agents keep using their own tools and models, and SIMple holds the shared record. You can use it through Python, the command line or Model Context Protocol (MCP).
 
 ![Clients share selected work through the harness](docs/assets/harness.svg)
 
-**Experimental alpha.** APIs may change. Automated checks cover the collaboration rules; productivity gains and two-person usability are not established. A maintained Markdown file may be enough for a small team.
+## When is it useful?
+
+SIMple is for work that passes between people or agents over several sessions. A finding may need review, an assumption may change, or a new person may need to understand an earlier decision without reading every conversation.
+
+For example, a team reviewing its backlog discovers that cancelled issues have been included in the workload estimate. Someone records the correction, the evidence for it and the projects it applies to. A reviewer approves it. Another agent can then use that correction in a later task, with the evidence attached.
+
+If the recorded information behind the correction changes, SIMple stops offering it for reuse until it has been checked and approved again. This helps the team distinguish advice that is ready to use from advice that needs another look.
+
+## Why use it instead of a shared document?
+
+A shared Markdown file can hold the same information. SIMple adds checks that a document leaves to its readers and maintainers:
+
+- **Review:** a correction needs passing tests and a different reviewer's approval before it can be reused.
+- **Changes:** reusable advice is checked against the recorded versions of the work it depends on.
+- **Access:** people and agents can only retrieve entries their source permissions allow them to read.
+- **Handover:** a new session can ask for relevant work using a goal, known facts and a size limit.
+
+A well-maintained document may be enough for your team. SIMple is worth trying when keeping those checks consistent has become difficult. We haven't yet shown that it saves time compared with Markdown.
 
 ## Try it
 
@@ -18,12 +35,18 @@ Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
 git clone https://github.com/aobeysekara/simple-harness.git
 cd simple-harness
 uv sync --locked --python 3.12
-uv run --locked python examples/reading_group.py
+uv run --locked python -m examples.reuse_comparison --directory .simple/first-comparison
 ```
 
-This local example records a proposal, a separate review and a handover, then retrieves the work after reopening storage. It uses temporary synthetic data and makes no model calls.
+The example follows the workload correction through review, a change to its recorded inputs, and another review. It also shows how someone keeping a Markdown handover up to date can reach the same result.
 
-To exercise separate authenticated service clients:
+It uses made-up data and runs without a model account. The script performs the reviews and Markdown edits; no people or live agents take part. Use a new output directory each time.
+
+The [walkthrough](docs/reuse-demonstration.md) explains the example, the files it creates and what the results mean. For a smaller example of saving and picking up work, run `uv run --locked python examples/reading_group.py`.
+
+## Try separate clients
+
+This script connects separate clients to the service, each with its own credentials:
 
 ```sh
 uv sync --locked --extra server --python 3.12
@@ -32,32 +55,31 @@ uv run --locked --extra server simple-pilot
 
 ![Output from the scripted collaboration pilot](docs/assets/pilot.png)
 
-Screenshot of locally rendered output from a real scripted run. These are protocol checks, not live agent or human acceptance results.
+This screenshot shows output from a real run of the script. The script checks the service; it doesn't involve live agents or human reviewers.
 
-## How it works
+## Use it in your own work
 
-1. Open an owned session with `open_session`.
-2. Retrieve permitted context using an explicit goal, known facts and a byte budget.
-3. Post selected work with source IDs and exact dependency revisions.
-4. Refresh context at checkpoints and leave a handover when finished.
+Start a session, ask for the context you need, and share findings with references to their sources. Refresh that context as the work changes, then leave a handover for whoever continues it.
 
-Opening a session does not load workspace history. When a declared dependency changes, affected guidance needs reconsideration. A new submission with an outdated reference conflicts. An identical committed retry keeps its original result, subject to current access.
+SIMple doesn't read your conversations automatically or decide which work to share. Context requests use the goals and facts you provide. A rule approved for one project doesn't automatically apply to another.
 
-Corrections can become reusable guidance after trusted local checks pass and a different reviewer approves both content and scope. Missing applicability facts remain unknown. A project-specific rule does not become a default for every project.
-
-| Start here | Guide |
+| I want to… | Guide |
 |---|---|
-| Embed the library | [Python API](docs/python-api.md) |
+| Use it from Python | [Python API](docs/python-api.md) |
 | Connect clients | [Service and MCP setup](docs/shared-service.md) |
 | Test and approve a correction | [Correction and reuse](docs/correction-reuse.md) |
-| Understand the boundaries | [Architecture](docs/architecture.md) |
+| Understand the code and its limits | [Architecture](docs/architecture.md) |
 
 ## Limits and contributing
 
-The database operator is trusted. Independent clients use separate bearer credentials through the service. Source restrictions apply to declared references; they cannot detect undisclosed sensitive paraphrases. Review records a judgement, and replay checks particular cases. Neither proves universal correctness.
+**Experimental alpha.** The API may change, and we haven't yet tested how easy it is for two people to use together. The core uses the Python standard library and SQLite. There is no published PyPI package or hosted service.
 
-Python 3.12 on Linux is the CI target. Local replay needs Unix file locking; ordinary CLI commands do not. Windows execution is not verified. The repository does not publish a PyPI package or operate a hosted service.
+SIMple checks changes recorded in the harness; it doesn't watch outside files. It also cannot take back advice someone has already read, so clients need to refresh their context.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for checks and pull requests, [SECURITY.md](SECURITY.md) for reporting, and the [build guide](docs/alpha-release.md) for local distributions.
+You must trust whoever runs the database. Clients use their own access tokens to connect through the service. SIMple checks permissions on the sources you name; it cannot detect sensitive information copied from a source you haven't named. Review records someone's judgement, and tests check specific cases. Neither guarantees that advice is always correct.
+
+CI runs on Linux with Python 3.12. Local test replay needs Unix file locking; ordinary CLI commands don't. We haven't verified Windows support.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) to suggest changes, [SECURITY.md](SECURITY.md) to report a security problem, and the [build guide](docs/alpha-release.md) to build a package locally.
 
 MIT licensed. See [LICENSE](LICENSE).
