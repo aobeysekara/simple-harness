@@ -1,6 +1,8 @@
 # Fix a mistake and share the correction
 
-A correction should explain what was wrong, why the fix works and where it applies. Accepting a finding doesn't, by itself, approve it for reuse elsewhere.
+Use a correction to help someone avoid a mistake that has already been found and fixed. Record what went wrong, the evidence for the fix and where it applies. SIMple keeps this information together so it can be used in later work.
+
+A reviewer can accept a finding without approving it for reuse. Reuse also needs passing tests and approval of where the advice can be used. This guide shows how to record, test and approve a correction.
 
 ## Try the example
 

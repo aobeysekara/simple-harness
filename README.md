@@ -2,21 +2,34 @@
 
 Shared work for people and their agents.
 
-SIMple saves findings, decisions and handovers so someone else can pick up the work in a new session. Each entry records who wrote it, which sources they used and which versions of earlier work it relies on.
+SIMple is a Python library for sharing findings, decisions and handovers across people and AI sessions. It keeps a record of what was agreed, why it was agreed and which sources it relies on, so the next person or agent can continue the work.
 
-Use it from Python, the command line or an optional Model Context Protocol (MCP) service. You don't need a model account. The core uses the Python standard library and SQLite.
+You choose what to share. Your agents keep using their own tools and models, and SIMple holds the shared record. You can use it through Python, the command line or Model Context Protocol (MCP).
 
 ![Clients share selected work through the harness](docs/assets/harness.svg)
 
-**Experimental alpha.** The API may change. We test the collaboration rules, but we haven't yet shown that SIMple saves time or is easy for two people to use together. A shared Markdown file may be all your team needs.
+## When is it useful?
 
-## Try it: what happens when earlier work changes?
+SIMple is for work that passes between people or agents over several sessions. A finding may need review, an assumption may change, or a new person may need to understand an earlier decision without reading every conversation.
 
-Suppose someone fixes a calculation and a reviewer approves it for reuse. Later, one of the inputs it relies on changes. Is the earlier advice still safe to use?
+For example, a team reviewing its backlog discovers that cancelled issues have been included in the workload estimate. Someone records the correction, the evidence for it and the projects it applies to. A reviewer approves it. Another agent can then use that correction in a later task, with the evidence attached.
 
-SIMple leaves it out of new context requests until it has been checked and approved again. It also leaves out instructions that depend on that advice.
+If the recorded information behind the correction changes, SIMple stops offering it for reuse until it has been checked and approved again. This helps the team distinguish advice that is ready to use from advice that needs another look.
 
-This example uses made-up data. Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
+## Why use it instead of a shared document?
+
+A shared Markdown file can hold the same information. SIMple adds checks that a document leaves to its readers and maintainers:
+
+- **Review:** a correction needs passing tests and a different reviewer's approval before it can be reused.
+- **Changes:** reusable advice is checked against the recorded versions of the work it depends on.
+- **Access:** people and agents can only retrieve entries their source permissions allow them to read.
+- **Handover:** a new session can ask for relevant work using a goal, known facts and a size limit.
+
+A well-maintained document may be enough for your team. SIMple is worth trying when keeping those checks consistent has become difficult. We haven't yet shown that it saves time compared with Markdown.
+
+## Try it
+
+Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
 
 ```sh
 git clone https://github.com/aobeysekara/simple-harness.git
@@ -25,22 +38,11 @@ uv sync --locked --python 3.12
 uv run --locked python -m examples.reuse_comparison --directory .simple/first-comparison
 ```
 
-The calculation starts by wrongly counting cancelled issues as work. The script runs a test that catches the mistake, applies the fix, and approves two pieces of advice: a rule for this project and instructions that use it. It then changes the recorded version of the input contract—the rules for interpreting the data.
+The example follows the workload correction through review, a change to its recorded inputs, and another review. It also shows how someone keeping a Markdown handover up to date can reach the same result.
 
-| What happened | Advice SIMple allows | Advice the updated Markdown allows | Advice still shown in an untouched copy |
-|---|---:|---:|---:|
-| Both items tested and approved | 2 | 2 | 2 |
-| Input contract version changed | 0 | 0 | 2 |
-| Fix tested again, review still pending | 0 | 0 | 2 |
-| Both items checked and approved again | 2 | 2 | 2 |
+It uses made-up data and runs without a model account. The script performs the reviews and Markdown edits; no people or live agents take part. Use a new output directory each time.
 
-**Keeping Markdown up to date can give the same result.** In this example, the script updates the Markdown handover to say the advice must not be used. SIMple applies that rule when someone asks for context. The untouched copy shows what happens if nobody updates the handover; it isn't the maintained Markdown comparison.
-
-The files under `.simple/first-comparison/comparison/` show the handovers at each step. The JSON files under `.simple/first-comparison/operator/` show what SIMple returned. Use a new output directory each time.
-
-The script performs all the reviews and Markdown edits. It changes the recorded contract version, but keeps the calculation rules the same. This shows how SIMple handles a recorded change. It doesn't show that agents work better, and SIMple doesn't watch outside files for changes or take back advice an agent has already read.
-
-The [walkthrough](docs/reuse-demonstration.md) explains the output and suggests how to try this with another engineer. For a smaller example of saving and picking up work, run `uv run --locked python examples/reading_group.py`.
+The [walkthrough](docs/reuse-demonstration.md) explains the example, the files it creates and what the results mean. For a smaller example of saving and picking up work, run `uv run --locked python examples/reading_group.py`.
 
 ## Try separate clients
 
@@ -55,16 +57,11 @@ uv run --locked --extra server simple-pilot
 
 This screenshot shows output from a real run of the script. The script checks the service; it doesn't involve live agents or human reviewers.
 
-## How it works
+## Use it in your own work
 
-1. Start a session with `open_session`.
-2. Ask for context for a goal. Supply the facts you know and a size limit in bytes.
-3. Share useful work, naming its sources and the exact versions of other entries it uses.
-4. Refresh the context as you work, then leave a handover when you finish.
+Start a session, ask for the context you need, and share findings with references to their sources. Refresh that context as the work changes, then leave a handover for whoever continues it.
 
-Opening a session doesn't load the whole history. SIMple only returns work you have permission to read. It rejects new submissions that refer to outdated versions. If you repeat an identical request that already succeeded, it returns the saved result after checking your current access.
-
-To make a correction reusable, its local tests must pass and a different reviewer must approve both the advice and where it applies. SIMple won't assume it applies when required facts are missing. A rule for one project doesn't automatically apply to another.
+SIMple doesn't read your conversations automatically or decide which work to share. Context requests use the goals and facts you provide. A rule approved for one project doesn't automatically apply to another.
 
 | I want to… | Guide |
 |---|---|
@@ -75,9 +72,13 @@ To make a correction reusable, its local tests must pass and a different reviewe
 
 ## Limits and contributing
 
+**Experimental alpha.** The API may change, and we haven't yet tested how easy it is for two people to use together. The core uses the Python standard library and SQLite. There is no published PyPI package or hosted service.
+
+SIMple checks changes recorded in the harness; it doesn't watch outside files. It also cannot take back advice someone has already read, so clients need to refresh their context.
+
 You must trust whoever runs the database. Clients use their own access tokens to connect through the service. SIMple checks permissions on the sources you name; it cannot detect sensitive information copied from a source you haven't named. Review records someone's judgement, and tests check specific cases. Neither guarantees that advice is always correct.
 
-CI runs on Linux with Python 3.12. Local test replay needs Unix file locking; ordinary CLI commands don't. We haven't verified Windows support. There is no published PyPI package or hosted service.
+CI runs on Linux with Python 3.12. Local test replay needs Unix file locking; ordinary CLI commands don't. We haven't verified Windows support.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) to suggest changes, [SECURITY.md](SECURITY.md) to report a security problem, and the [build guide](docs/alpha-release.md) to build a package locally.
 

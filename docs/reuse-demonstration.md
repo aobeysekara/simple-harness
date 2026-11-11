@@ -1,8 +1,10 @@
 # What happens when shared advice goes out of date?
 
-You can keep decisions, references and test results in Markdown. Someone then has to keep that handover up to date when the work changes.
+A correction can be useful beyond the task where it was first made. Before another person or agent relies on it, they need to know what it fixes, where it applies and whether the information behind it is still current.
 
-SIMple checks those rules when you ask for context. Has the advice been approved? Do its references still point to the current versions? Does it apply to this task, and can you read its sources? This example shows those checks working. It doesn't tell us yet whether they save people time.
+SIMple keeps that information with the correction. Advice based on changed information needs fresh checks and approval before SIMple shares it for reuse. A shared Markdown handover can serve the same purpose if someone keeps it up to date.
+
+This guide uses a backlog calculation to show how both approaches handle a change. It explains the example's output for readers who want to inspect the checks. It isn't a test of how well people or agents work.
 
 ## Run the example
 
@@ -36,7 +38,9 @@ These paths are inside the output directory. A context packet is the JSON respon
 | Fix tested again, review pending | `operator/awaiting-review.json` | `comparison/03-replayed-not-approved.md` | 0 |
 | Both items checked and approved again | `operator/packet.json` | `comparison/04-reapproved.md` | 2 |
 
-In `stale.json`, both items are marked `needs_revalidation`. Neither is offered for reuse. Running the correction's test again isn't enough: the next response still leaves both items out while approval is pending. The final response contains both items after the script has checked and approved them again and reopened the database.
+The files show two separate requirements for reuse: the tests must pass, and a reviewer must approve the advice for its intended use.
+
+In this example, `stale.json` marks the cancellation rule and the instructions that use it as `needs_revalidation`. The file `awaiting-review.json` confirms that a passing test alone doesn't make the advice available. After fresh checks and approval, `packet.json` contains the advice again, including when the database is reopened.
 
 Failed test runs stay in `operator/runs/`. The example also checks that SIMple leaves advice out when it doesn't know where it applies, and doesn't reveal a test entry whose source the reader cannot access.
 
@@ -50,7 +54,7 @@ The first and last handovers contain the same advice, limits, evidence and refer
 
 An old SIMple response can go out of date too. SIMple cannot take back advice that someone has already read. Clients need to request fresh context as the work progresses.
 
-## What we can say so far
+## What the example shows
 
 SIMple leaves outdated advice out of new responses, including instructions that depend on it. Tests and review must both be complete before the advice can be reused. A properly updated Markdown handover can tell its reader to make the same safe choice.
 
