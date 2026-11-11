@@ -4,6 +4,10 @@ A useful correction needs a reason, evidence and a clear scope. Ordinary accepta
 
 ## Try the example
 
+For a compact before/after comparison with maintained Markdown, start with the
+[reuse demonstration](reuse-demonstration.md). The command below exposes the full
+underlying loop and prepares consumer handovers.
+
 ```sh
 uv run --locked python -m examples.reuse_loop --directory .simple/reuse-demo
 ```

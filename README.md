@@ -10,7 +10,13 @@ Use it through Python, the command line or an optional Model Context Protocol (M
 
 **Experimental alpha.** APIs may change. Automated checks cover the collaboration rules; productivity gains and two-person usability are not established. A maintained Markdown file may be enough for a small team.
 
-## Try it
+## See what changes when a dependency changes
+
+A reviewed correction is reusable today. Its declared input version changes tomorrow.
+SIMple withholds the correction and its dependent procedure from newly requested context
+until their references, checks and review are brought up to date.
+
+Run the synthetic example without a model account:
 
 Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
 
@@ -18,10 +24,35 @@ Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
 git clone https://github.com/aobeysekara/simple-harness.git
 cd simple-harness
 uv sync --locked --python 3.12
-uv run --locked python examples/reading_group.py
+uv run --locked python -m examples.reuse_comparison --directory .simple/first-comparison
 ```
 
-This local example records a proposal, a separate review and a handover, then retrieves the work after reopening storage. It uses temporary synthetic data and makes no model calls.
+The example starts with cancelled issues incorrectly counted as workload. It records a
+failed check, fixes the calculation, and approves a scoped correction and a dependent
+procedure using a separate reviewer identity. It then changes the declared contract version.
+
+| Stage | SIMple: eligible items | Maintained Markdown: allowed items | Unchanged snapshot: items still shown |
+|---|---:|---:|---:|
+| Checked and approved | 2 | 2 | 2 |
+| Dependency changed | 0 | 0 | 2 |
+| Correction replayed, not yet reapproved | 0 | 0 | 2 |
+| Both items revalidated and reapproved | 2 | 2 | 2 |
+
+**Maintained Markdown can reach the same safe result.** Here, the script acts as its
+maintainer and explicitly withdraws outdated guidance. SIMple enforces eligibility when
+context is requested. The unchanged snapshot is a separate control, not the Markdown baseline.
+
+Inspect the handovers in `.simple/first-comparison/comparison/` and the observed context
+packets in `operator/`. Use a new output directory for each run. The review and Markdown
+maintenance are scripted; this is not a live agent benchmark. The change is a declared
+version bump, not a change in calculation semantics. SIMple does not watch external files
+or recall context already read.
+
+See the [walkthrough and trial protocol](docs/reuse-demonstration.md) for the evidence,
+limits and an unaided two-person evaluation. For the smaller persistence example, run
+`uv run --locked python examples/reading_group.py`.
+
+## Connect separate clients
 
 To exercise separate authenticated service clients:
 

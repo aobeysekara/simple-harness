@@ -80,6 +80,7 @@ def markdown(packet: ContextPacket) -> str:
         "Synthetic project A triage workload.",
         "Review is simulated operator approval, not independent verification.",
         "Use current exact references below. Scope and exclusions remain binding.",
+        f"Context status: {packet.status}. Eligible guidance: {len(packet.items)}.",
     ]
     for item in packet.items:
         update = item.update
@@ -288,6 +289,7 @@ def run_demo(directory: Path) -> dict[str, Any]:
         )
         assert initial_packet.status == "ready" and len(initial_packet.items) == 2
         write_json(operator / "before-contract-change.json", asdict(initial_packet))
+        (operator / "before-contract-change.md").write_text(markdown(initial_packet))
         contract = harness.post_update(
             callers["alice"],
             session.id,
@@ -327,6 +329,11 @@ def run_demo(directory: Path) -> dict[str, Any]:
             operator / "runs",
             "revalidated",
         )
+        awaiting_review = harness.prepare_context(
+            callers["bob"], "reuse", "fresh", "workload", FACTS
+        )
+        assert not awaiting_review.items
+        write_json(operator / "awaiting-review.json", asdict(awaiting_review))
         knowledge = review(harness, callers["reviewer"], knowledge, "reapproved", True)
         procedure_data["facts"] = [{"update_id": knowledge.id, "revision": knowledge.revision}]
         procedure = harness.post_update(

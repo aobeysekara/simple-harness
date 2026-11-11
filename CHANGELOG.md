@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Lead the README with a runnable dependency-change demonstration and inspected context
+  packets. Compare enforced withdrawal with explicitly maintained Markdown and a separate
+  unchanged snapshot; document the limits and an unrun two-person trial protocol.
+
 ## 0.1.0a1
 
 Experimental alpha with a typed Python library, local CLI and optional authenticated HTTP/MCP service.
