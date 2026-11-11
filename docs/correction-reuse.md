@@ -1,54 +1,52 @@
-# Correct, check and reuse
+# Fix a mistake and share the correction
 
-A useful correction needs a reason, evidence and a clear scope. Ordinary acceptance does not turn a finding into reusable guidance.
+A correction should explain what was wrong, why the fix works and where it applies. Accepting a finding doesn't, by itself, approve it for reuse elsewhere.
 
 ## Try the example
 
-For a compact before/after comparison with maintained Markdown, start with the
-[reuse demonstration](reuse-demonstration.md). The command below exposes the full
-underlying loop and prepares consumer handovers.
+Start with the [walkthrough](reuse-demonstration.md) to compare SIMple with an updated Markdown handover. The command below runs the full example and writes handovers for later sessions:
 
 ```sh
 uv run --locked python -m examples.reuse_loop --directory .simple/reuse-demo
 ```
 
-The synthetic issue-triage example starts with a faulty effort calculation. It records a failed check, applies a project-specific correction, replays the case and obtains approval through a separate reviewer identity. It then changes the declared input version and checks that guidance needs revalidation before reuse.
+The example uses made-up issue data and starts with a wrong effort calculation. It records a failed test, applies a fix for that project, runs the test again and approves the fix through a separate reviewer account. It then changes the recorded input version and checks that the advice is held back until it has been checked again.
 
-Approval in this example is scripted, not human verification. Generated token files and reports stay under `.simple/`, which Git ignores. Use a new output directory each time.
+The script performs the approvals; no human reviews the results. It saves tokens and reports under `.simple/`, which Git ignores. Use a new output directory each time.
 
 ## Record the correction
 
-Use `post_update` with optional `correction` metadata and exact `goals` tags. MCP exposes the full schema. The metadata identifies:
+Call `post_update` with `correction` details and `goals` tags. MCP provides the full input schema. Include:
 
-- The exact work being corrected, the mistake and rationale.
-- Knowledge or procedure, with procedures referring to facts rather than copying project-specific values.
-- Scope, exclusions and required facts. Missing facts remain unknown.
-- Exact dependencies and acceptance cases identifying code, inputs and tests by reference and digest.
-- An explicit proposal for reuse.
+- The exact version of the work you're correcting, what was wrong and why you're changing it.
+- Whether you're recording a fact or instructions. Instructions should refer to the facts they use, so project values don't have to be copied into several places.
+- Where the correction applies, where it doesn't, and which facts you need to decide. A missing fact isn't a match.
+- The entries it depends on and the tests it must pass. Identify the code, inputs and tests with references and file hashes.
+- Whether you're proposing it for reuse.
 
-The correction's references must also be declared in `derived_from`. A changed dependency conflicts on a new submission. Inherited references remain historical until explicitly reasserted.
+Also list the correction's references in `derived_from`. SIMple rejects a new submission if one of those versions has changed. References inherited from an earlier revision still describe the old work; you must explicitly supply them again to confirm they apply to the new revision.
 
-## Replay and approve
+## Run the tests and approve reuse
 
-Keep test code and inputs in a reviewed repository. The trusted local operator selects a manifest containing a case ID and relative paths for `code`, `inputs` and `test`.
+Keep test code and inputs in a reviewed repository. The person running the local tests chooses a manifest: a file containing the case ID and relative paths for `code`, `inputs` and `test`.
 
 ```sh
 simple --db DATABASE validate WORKSPACE CORRECTION_ID \
   --manifest case.json --evidence-directory .simple/runs --request-id check-1
 ```
 
-Use a validator credential for replay. The adapter checks declared bytes and invokes the selected checker with fixed arguments. Retrieved text cannot supply arbitrary commands. Failures remain recorded; posting `{"passed": true}` does not create trusted evidence.
+Use a validator account. SIMple checks that the files match their recorded hashes, then runs the chosen checker with fixed arguments. Text retrieved from the harness can't choose arbitrary commands. Failed runs stay in the record. Posting `{"passed": true}` yourself doesn't count as a test run.
 
-A different authorised reviewer then approves both content and scope:
+A different authorised reviewer must then approve the advice and where it can be used:
 
 ```sh
 simple --db DATABASE review WORKSPACE CORRECTION_ID accepted \
   --revision REVISION --request-id approval-1 --approve-reuse
 ```
 
-Validation binds semantic content, so review-only revisions do not invalidate the tested content. Content, scope or declared version changes require appropriate replay and review. Approval never widens source permissions.
+Test results are tied to the content that was checked. Changing only the review status doesn't make those results out of date. Changing the advice, where it applies or the versions it relies on requires further checks and review. Approval doesn't give anyone extra access to its sources.
 
-## Retrieve context
+## Ask for context
 
 ```sh
 simple --db DATABASE open WORKSPACE TASK --request-id session-1
@@ -57,6 +55,8 @@ simple --db DATABASE context WORKSPACE TASK workload \
   --byte-budget 16384
 ```
 
-The packet includes complete guidance, supporting evidence, exact references and selection reasons. It uses explicit tags and facts, not semantic search. Check its status before use. Unknown applicability, stale dependencies and insufficient budget remain explicit. Refresh at checkpoints; there is no automatic history fallback.
+The response contains complete pieces of advice, the evidence behind them, exact references and the reasons they were included. SIMple matches the tags and facts you provide; it doesn't use semantic search.
 
-Replay requires Unix file locking. Other CLI commands work without that module. The operator and selected checker remain trusted, and subprocess separation is not a hostile-code sandbox. Hashes identify bytes, not truth or complete information flow.
+Check the response status before using it. SIMple reports when it can't tell whether advice applies, when references are out of date, or when the size limit is too small. Ask for fresh context as the work progresses. It won't silently load the whole history to fill a gap.
+
+Local test replay needs Unix file locking. Other CLI commands don't. You must trust the person running the tests and the checker they choose: running code in a separate process doesn't make untrusted code safe. A hash confirms which bytes were used, not whether their contents are true or all their sources have been named.

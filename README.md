@@ -2,23 +2,21 @@
 
 Shared work for people and their agents.
 
-SIMple keeps findings, decisions and handovers in a durable workspace. Each contribution records who wrote it, the sources it uses and the exact revisions it depends on. Another session can pick up the work without copying a conversation.
+SIMple saves findings, decisions and handovers so someone else can pick up the work in a new session. Each entry records who wrote it, which sources they used and which versions of earlier work it relies on.
 
-Use it through Python, the command line or an optional Model Context Protocol (MCP) service. It works without a model provider. The core uses the Python standard library and SQLite.
+Use it from Python, the command line or an optional Model Context Protocol (MCP) service. You don't need a model account. The core uses the Python standard library and SQLite.
 
 ![Clients share selected work through the harness](docs/assets/harness.svg)
 
-**Experimental alpha.** APIs may change. Automated checks cover the collaboration rules; productivity gains and two-person usability are not established. A maintained Markdown file may be enough for a small team.
+**Experimental alpha.** The API may change. We test the collaboration rules, but we haven't yet shown that SIMple saves time or is easy for two people to use together. A shared Markdown file may be all your team needs.
 
-## See what changes when a dependency changes
+## Try it: what happens when earlier work changes?
 
-A reviewed correction is reusable today. Its declared input version changes tomorrow.
-SIMple withholds the correction and its dependent procedure from newly requested context
-until their references, checks and review are brought up to date.
+Suppose someone fixes a calculation and a reviewer approves it for reuse. Later, one of the inputs it relies on changes. Is the earlier advice still safe to use?
 
-Run the synthetic example without a model account:
+SIMple leaves it out of new context requests until it has been checked and approved again. It also leaves out instructions that depend on that advice.
 
-Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
+This example uses made-up data. Install [uv](https://docs.astral.sh/uv/) and use Python 3.12:
 
 ```sh
 git clone https://github.com/aobeysekara/simple-harness.git
@@ -27,34 +25,26 @@ uv sync --locked --python 3.12
 uv run --locked python -m examples.reuse_comparison --directory .simple/first-comparison
 ```
 
-The example starts with cancelled issues incorrectly counted as workload. It records a
-failed check, fixes the calculation, and approves a scoped correction and a dependent
-procedure using a separate reviewer identity. It then changes the declared contract version.
+The calculation starts by wrongly counting cancelled issues as work. The script runs a test that catches the mistake, applies the fix, and approves two pieces of advice: a rule for this project and instructions that use it. It then changes the recorded version of the input contract—the rules for interpreting the data.
 
-| Stage | SIMple: eligible items | Maintained Markdown: allowed items | Unchanged snapshot: items still shown |
+| What happened | Advice SIMple allows | Advice the updated Markdown allows | Advice still shown in an untouched copy |
 |---|---:|---:|---:|
-| Checked and approved | 2 | 2 | 2 |
-| Dependency changed | 0 | 0 | 2 |
-| Correction replayed, not yet reapproved | 0 | 0 | 2 |
-| Both items revalidated and reapproved | 2 | 2 | 2 |
+| Both items tested and approved | 2 | 2 | 2 |
+| Input contract version changed | 0 | 0 | 2 |
+| Fix tested again, review still pending | 0 | 0 | 2 |
+| Both items checked and approved again | 2 | 2 | 2 |
 
-**Maintained Markdown can reach the same safe result.** Here, the script acts as its
-maintainer and explicitly withdraws outdated guidance. SIMple enforces eligibility when
-context is requested. The unchanged snapshot is a separate control, not the Markdown baseline.
+**Keeping Markdown up to date can give the same result.** In this example, the script updates the Markdown handover to say the advice must not be used. SIMple applies that rule when someone asks for context. The untouched copy shows what happens if nobody updates the handover; it isn't the maintained Markdown comparison.
 
-Inspect the handovers in `.simple/first-comparison/comparison/` and the observed context
-packets in `operator/`. Use a new output directory for each run. The review and Markdown
-maintenance are scripted; this is not a live agent benchmark. The change is a declared
-version bump, not a change in calculation semantics. SIMple does not watch external files
-or recall context already read.
+The files under `.simple/first-comparison/comparison/` show the handovers at each step. The JSON files under `.simple/first-comparison/operator/` show what SIMple returned. Use a new output directory each time.
 
-See the [walkthrough and trial protocol](docs/reuse-demonstration.md) for the evidence,
-limits and an unaided two-person evaluation. For the smaller persistence example, run
-`uv run --locked python examples/reading_group.py`.
+The script performs all the reviews and Markdown edits. It changes the recorded contract version, but keeps the calculation rules the same. This shows how SIMple handles a recorded change. It doesn't show that agents work better, and SIMple doesn't watch outside files for changes or take back advice an agent has already read.
 
-## Connect separate clients
+The [walkthrough](docs/reuse-demonstration.md) explains the output and suggests how to try this with another engineer. For a smaller example of saving and picking up work, run `uv run --locked python examples/reading_group.py`.
 
-To exercise separate authenticated service clients:
+## Try separate clients
+
+This script connects separate clients to the service, each with its own credentials:
 
 ```sh
 uv sync --locked --extra server --python 3.12
@@ -63,32 +53,32 @@ uv run --locked --extra server simple-pilot
 
 ![Output from the scripted collaboration pilot](docs/assets/pilot.png)
 
-Screenshot of locally rendered output from a real scripted run. These are protocol checks, not live agent or human acceptance results.
+This screenshot shows output from a real run of the script. The script checks the service; it doesn't involve live agents or human reviewers.
 
 ## How it works
 
-1. Open an owned session with `open_session`.
-2. Retrieve permitted context using an explicit goal, known facts and a byte budget.
-3. Post selected work with source IDs and exact dependency revisions.
-4. Refresh context at checkpoints and leave a handover when finished.
+1. Start a session with `open_session`.
+2. Ask for context for a goal. Supply the facts you know and a size limit in bytes.
+3. Share useful work, naming its sources and the exact versions of other entries it uses.
+4. Refresh the context as you work, then leave a handover when you finish.
 
-Opening a session does not load workspace history. When a declared dependency changes, affected guidance needs reconsideration. A new submission with an outdated reference conflicts. An identical committed retry keeps its original result, subject to current access.
+Opening a session doesn't load the whole history. SIMple only returns work you have permission to read. It rejects new submissions that refer to outdated versions. If you repeat an identical request that already succeeded, it returns the saved result after checking your current access.
 
-Corrections can become reusable guidance after trusted local checks pass and a different reviewer approves both content and scope. Missing applicability facts remain unknown. A project-specific rule does not become a default for every project.
+To make a correction reusable, its local tests must pass and a different reviewer must approve both the advice and where it applies. SIMple won't assume it applies when required facts are missing. A rule for one project doesn't automatically apply to another.
 
-| Start here | Guide |
+| I want to… | Guide |
 |---|---|
-| Embed the library | [Python API](docs/python-api.md) |
+| Use it from Python | [Python API](docs/python-api.md) |
 | Connect clients | [Service and MCP setup](docs/shared-service.md) |
 | Test and approve a correction | [Correction and reuse](docs/correction-reuse.md) |
-| Understand the boundaries | [Architecture](docs/architecture.md) |
+| Understand the code and its limits | [Architecture](docs/architecture.md) |
 
 ## Limits and contributing
 
-The database operator is trusted. Independent clients use separate bearer credentials through the service. Source restrictions apply to declared references; they cannot detect undisclosed sensitive paraphrases. Review records a judgement, and replay checks particular cases. Neither proves universal correctness.
+You must trust whoever runs the database. Clients use their own access tokens to connect through the service. SIMple checks permissions on the sources you name; it cannot detect sensitive information copied from a source you haven't named. Review records someone's judgement, and tests check specific cases. Neither guarantees that advice is always correct.
 
-Python 3.12 on Linux is the CI target. Local replay needs Unix file locking; ordinary CLI commands do not. Windows execution is not verified. The repository does not publish a PyPI package or operate a hosted service.
+CI runs on Linux with Python 3.12. Local test replay needs Unix file locking; ordinary CLI commands don't. We haven't verified Windows support. There is no published PyPI package or hosted service.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for checks and pull requests, [SECURITY.md](SECURITY.md) for reporting, and the [build guide](docs/alpha-release.md) for local distributions.
+See [CONTRIBUTING.md](CONTRIBUTING.md) to suggest changes, [SECURITY.md](SECURITY.md) to report a security problem, and the [build guide](docs/alpha-release.md) to build a package locally.
 
 MIT licensed. See [LICENSE](LICENSE).
